@@ -22,20 +22,29 @@ var _     = require('lodash');
 module.exports.register = function(Handlebars, options) {
 
   // If the 'assemble.options' object exists, use it
-  var assembleOpts = options.aggregate || {};
+  var assembleOpts = options || {};
 
   Handlebars.registerHelper("aggregate", function (src, options, compare_fn) {
 
     // Default options
-    options = _.defaults(options.hash, assembleOpts, {sep: '\n'});
+    var opts = {
+      cwd: '',
+      sep: '\n',
+      glob: {}
+    };
+
+    options = _.defaults(options.hash, assembleOpts.aggregate, opts);
 
     var content;
-    compare_fn = (compare_fn || options.compare_fn || compareFn);
+    compare_fn = (compare_fn || options.compare || compareFn);
     var index = 0;
 
-    return glob.find(src, options).map(function (path, options) {
-      var context = yfm.extract(path, options).context;
-      var content = yfm.extract(path, options).content;
+    // Join path to 'cwd' if defined in the helper's options
+    var cwd = path.join.bind(null, options.cwd, '');
+
+    return glob.find(cwd(src), options.glob).map(function (path) {
+      var context = yfm.extract(path).context;
+      var content = yfm.extract(path).content;
       index += 1;
       return {
         index: index,
@@ -43,7 +52,7 @@ module.exports.register = function(Handlebars, options) {
         context: processContext(grunt, context),
         content: content
       };
-    }).sort(compare_fn).map(function (obj) {
+    }).sort(_.bind(compare_fn)).map(function (obj) {
       var template = Handlebars.compile(obj.content);
       return new Handlebars.SafeString(template(obj.context));
     }).join(options.sep);

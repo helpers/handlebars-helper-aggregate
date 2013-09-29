@@ -9,110 +9,174 @@ In the root of your project, run the following in the command line:
 npm i helper-aggregate --save-dev
 ```
 
-## Usage
-
-```handlebars
-{{aggregate 'path/to/*.hbs'}}
-```
-
-### Usage in Assemble
 In your Gruntfile, simply add `helper-aggregate` to the `helpers` property in the [Assemble](http://assemble.io) task or target options:
 
 ```javascript
 grunt.initConfig({
   assemble: {
     options: {
-      // must be in devDependencies for assemble
-      // to automatically resolve the helper
-      helpers: ['helper-aggregate']
+      // the 'helper-aggregate' modules must also be listed in devDependencies
+      // for assemble to automatically resolve the helper
+      helpers: ['helper-aggregate', 'other/helpers/*.js']
     }
     ...
   }
 });
 ```
 
-With that completed, you may now use the `{{aggregate}}` helper in your Assemble project.
+With that completed, you may now use the `{{aggregate}}` helper in your templates:
 
-### Usage examples
-See examples of the `{{aggregate}}` helper being used in the [yfm project](https://github.com/assemble/yfm):
+```handlebars
+{{aggregate 'path/to/*.hbs'}}
+```
 
-#### templates and content
-* [the helper itself](https://github.com/assemble/yfm/blob/master/test/fixtures/aggregate.hbs)
-* [content being aggregated by the helper](https://github.com/assemble/yfm/tree/master/test/fixtures/book)
-* [the compiled result](https://github.com/assemble/yfm/blob/master/test/actual/aggregate.html)
 
-#### options and context
-* [defining helper options](https://github.com/assemble/yfm/blob/master/Gruntfile.js#L31-L35)
-* [config data used in examples](https://github.com/assemble/yfm/blob/master/Gruntfile.js#L19)
+
+
+## Context & Lo-Dash templates
+
+The helper will also process any **valid** [Lo-Dash templates](http://lodash.com/docs#template) in the YAML front matter of targeted files, using `grunt.config.data` and the context of the "current" file. For example:
+
+```handlebars
+---
+title: <%= book.title %>
+chapter: 1
+heading: <%= book.title %> | Chapter <%= chapter %>
+---
+<h1>{{title}}</h1>
+<p class="heading">{{heading}}</p>
+```
+
 
 
 
 ## Options
+
+### cwd
+Type: `String` (optional)
+Default value: `''`
+
+The `cwd` for paths defined in the helper.
+
 ### sep
 Type: `String`
 Default value: `\n`
 
 The separator to append after each inlined file.
 
+### compare
+Type: `Function`
+Default value: `function(a, b) {return a.index >= b.index ? 1 : -1;}`
+
+Compare function for sorting the aggregated files.
 
 
-## Setting options
+
+
+
+## Defining options
+
 ### hash options
-Set options as hash arguments.
-
+Set options as hash arguments directly on the expressions themselves:
 
 ```handlebars
 {{aggregate 'my/book/chapters/*.hbs' sep="<!- Chapter -->"}}
 ```
 
+If defined, **options defined in the hash always win**.
+
 
 ### "assemble" task options
-Pass [Assemble](http://assemble.io) options into the helper.
+
+> If you use Grunt and [Assemble](http://assemble.io), you can pass options from the `assemble` task in the Gruntfile to the helper.
 
 In your project's Gruntfile, options for the `{{aggregate}}` helper can be defined in the Assemble task options:
+
+
+```js
+assemble: {
+  options: {
+    helpers: ['helper-aggregate', 'other/helpers/*.js'],
+    aggregate: {
+      cwd: 'path/to/files',
+      sep: '<!-- separator defined in Gruntfile -->',
+      compare: function (a, b) {
+        return a.index >= b.index ? 1 : -1;
+      }
+    }
+  },
+  files: {}
+}
+```
+
+Note that the options are defined in `options: {aggregate: {}}`, which is a [custom property](http://assemble.io/docs/Custom-Helpers.html) in the Assemble options.
+
+
+
+## Examples
+
+See examples of the `{{aggregate}}` helper being used in the [yfm project](https://github.com/assemble/yfm):
+
+#### example templates and content
+* [the helper itself](https://github.com/assemble/yfm/blob/master/test/fixtures/aggregate.hbs)
+* [content being aggregated by the helper](https://github.com/assemble/yfm/tree/master/test/fixtures/book)
+* [the compiled result](https://github.com/assemble/yfm/blob/master/test/actual/aggregate.html)
+
+#### example options and context
+* [defining helper options](https://github.com/assemble/yfm/blob/master/Gruntfile.js#L31-L35)
+* [config data used in examples](https://github.com/assemble/yfm/blob/master/Gruntfile.js#L19)
+
+
+
+### cwd example
+
+Instead of doing this:
+
+```handlebars
+{{aggregate 'my/book/chapters/*.hbs'}}
+{{aggregate 'my/book/extras/*.hbs'}}
+```
+
+You could define the `cwd` in the `aggregate` options in your project's Gruntfile:
 
 ```javascript
 assemble: {
   options: {
     helpers: ['helper-aggregate'],
     aggregate: {
-      sep: '\n\n',
-      compare_fn: function(a, b) {
-        return a.index >= b.index ? 1 : -1;
-      }
+      cwd: 'my/book' // "base" path to prepend
     }
   }
-  ...
 }
 ```
 
-Note that the options are defined in the [custom property](http://assemble.io/docs/Custom-Helpers.html), `aggregate`, not on the `options` object itself.
+Now you can define paths in the templates like this:
+
+```handlebars
+{{aggregate 'chapters/*.hbs'}}
+{{aggregate 'extras/*.hbs'}}
+```
 
 
-## Lo-Dash templates
+## Usage example
 
-The helper will also process any valid Lo-Dash templates in the YAML front matter of targeted files, using `grunt.config.data` and the context of the "current" file. For example:
-
-Given you have this in the gruntfile:
+Given you have this config in your project's gruntfile:
 
 ```js
 // Project configuration.
 grunt.initConfig({
 
   // Metadata for our book.
-  book: require('./test/fixtures/book/book.yml'),
+  book: require('./metadata/book.yml'),
 
   assemble: {
     options: {
       helpers: ['helper-aggregate'],
       aggregate: {
-        sep: '<!-- chapter -->',
-        compare_fn: function(a, b) {
-          return a.index >= b.index ? 1 : -1;
-        }
+        sep: '<!-- chapter -->'
       },
       book: {
-        src: ['chapters/*.hbs'],
+        src: ['chapters.hbs'],
         dest: 'book/'
       }
     }
@@ -120,7 +184,15 @@ grunt.initConfig({
 });
 ```
 
-And these Lo-Dash and Handlebars templates:
+Our `chapters.hbs` file contains the following:
+
+
+```handlebars
+{{{aggregate 'chapters/*.hbs'}}}
+```
+
+And the files we want to aggregate include these Lo-Dash and Handlebars templates:
+
 
 ```handlebars
 ---
@@ -133,7 +205,7 @@ intro: Chapter <%= chapter %>
 <p class="chapter">Chapter: {{chapter}}</p>
 ```
 
-would result in:
+The result, `book/chapters.html` would contain something like:
 
 ```html
 <!DOCTYPE html>
@@ -160,7 +232,6 @@ would result in:
     <p class="chapter">Chapter: 3</p>
   </body>
 </html>
-
 ```
 
 
