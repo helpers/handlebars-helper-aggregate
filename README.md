@@ -22,6 +22,8 @@ In your Gruntfile, simply add `helper-aggregate` to the `helpers` property in th
 grunt.initConfig({
   assemble: {
     options: {
+      // must be in devDependencies for assemble
+      // to automatically resolve the helper
       helpers: ['helper-aggregate']
     }
     ...
@@ -54,18 +56,15 @@ The separator to append after each inlined file.
 
 
 
-
 ## Setting options
 ### hash options
 Set options as hash arguments.
 
 
 ```handlebars
----
-chapter: 1
----
-{{aggregate 'path/to/*.hbs' sep="\n\n\n"}}
+{{aggregate 'my/book/chapters/*.hbs' sep="<!- Chapter -->"}}
 ```
+
 
 ### "assemble" task options
 Pass [Assemble](http://assemble.io) options into the helper.
@@ -73,20 +72,96 @@ Pass [Assemble](http://assemble.io) options into the helper.
 In your project's Gruntfile, options for the `{{aggregate}}` helper can be defined in the Assemble task options:
 
 ```javascript
-grunt.initConfig({
-  assemble: {
-    options: {
-      aggregate: {
-        sep: '\n',
-        compare_fn: 5
+assemble: {
+  options: {
+    helpers: ['helper-aggregate'],
+    aggregate: {
+      sep: '\n\n',
+      compare_fn: function(a, b) {
+        return a.index >= b.index ? 1 : -1;
       }
     }
-    ...
+  }
+  ...
+}
+```
+
+Note that the options are defined in the [custom property](http://assemble.io/docs/Custom-Helpers.html), `aggregate`, not on the `options` object itself.
+
+
+## Lo-Dash templates
+
+The helper will also process any valid Lo-Dash templates in the YAML front matter of targeted files, using `grunt.config.data` and the context of the "current" file. For example:
+
+Given you have this in the gruntfile:
+
+```js
+// Project configuration.
+grunt.initConfig({
+
+  // Metadata for our book.
+  book: require('./test/fixtures/book/book.yml'),
+
+  assemble: {
+    options: {
+      helpers: ['helper-aggregate'],
+      aggregate: {
+        sep: '<!-- chapter -->',
+        compare_fn: function(a, b) {
+          return a.index >= b.index ? 1 : -1;
+        }
+      },
+      book: {
+        src: ['chapters/*.hbs'],
+        dest: 'book/'
+      }
+    }
   }
 });
 ```
 
-Note that the options are defined in the [custom property](http://assemble.io/docs/Custom-Helpers.html), `aggregate`, not on the `options` object itself.
+And these Lo-Dash and Handlebars templates:
+
+```handlebars
+---
+title: <%= book.title %>
+chapter: 1
+intro: Chapter <%= chapter %>
+---
+<h1>Content from {{title}}</h1>
+<p class="intro">{{intro}}</p>
+<p class="chapter">Chapter: {{chapter}}</p>
+```
+
+would result in:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>My Amazing Book</title>
+  </head>
+  <body>
+
+    <!-- chapter -->
+    <h1>Content from My Amazing Book</h1>
+    <p class="intro">Chapter 1</p>
+    <p class="chapter">Chapter: 1</p>
+
+    <!-- chapter -->
+    <h1>Content from My Amazing Book</h1>
+    <p class="intro">Chapter 2</p>
+    <p class="chapter">Chapter: 2</p>
+
+    <!-- chapter -->
+    <h1>Content from My Amazing Book</h1>
+    <p class="intro">Chapter 3</p>
+    <p class="chapter">Chapter: 3</p>
+  </body>
+</html>
+
+```
 
 
 ## Author

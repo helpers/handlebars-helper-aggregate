@@ -1,9 +1,11 @@
 {
   "name": "helper-aggregate",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "dependencies": {
-    "lodash": "~2.1.0",
+    "assemble-yaml": "~0.1.5",
     "globule": "~0.1.0",
-    "assemble-yaml": "~0.1.5"
+    "lodash": "~2.1.0",
+    "handlebars": "~1.0.12",
+    "grunt": "~0.4.1"
   }
 }
