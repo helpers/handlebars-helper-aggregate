@@ -1,0 +1,40 @@
+{
+  "name": "helper-aggregate",
+  "version": "0.1.0",
+  "description": "{{aggregate}} handlebars helper for inlining content from multiple files.",
+  "homepage": "https://github.com/helpers/helper-aggregate",
+  "author": {
+    "name": "Jon Schlinkert",
+    "url": "https://github.com/jonschlinkert"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/assemble/helper-aggregate.git"
+  },
+  "bugs": {
+    "url": "https://github.com/helpers/helper-aggregate/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/helpers/helper-aggregate/blob/master/LICENSE-MIT"
+    }
+  ],
+  "dependencies": {
+    "lodash": "~2.1.0",
+    "globule": "~0.1.0",
+    "assemble-yaml": "~0.1.5"
+  },
+  "keywords": [
+    "helper",
+    "mixin",
+    "handlebars helper",
+    "underscore mixin",
+    "filter",
+    "template filter",
+    "swig filter",
+    "lodash",
+    "underscore",
+    "convenience methods"
+  ]
+}
