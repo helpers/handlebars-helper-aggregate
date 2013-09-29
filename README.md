@@ -15,8 +15,7 @@ npm i helper-aggregate --save-dev
 {{aggregate 'path/to/*.hbs'}}
 ```
 
-
-## Usage in Assemble
+### Usage in Assemble
 In your Gruntfile, simply add `helper-aggregate` to the `helpers` property in the [Assemble](http://assemble.io) task or target options:
 
 ```javascript
@@ -31,6 +30,19 @@ grunt.initConfig({
 ```
 
 With that completed, you may now use the `{{aggregate}}` helper in your Assemble project.
+
+### Usage examples
+See examples of the `{{aggregate}}` helper being used in the [yfm project](https://github.com/assemble/yfm):
+
+#### templates and content
+* [the helper itself](https://github.com/assemble/yfm/blob/master/test/fixtures/aggregate.hbs)
+* [content being aggregated by the helper](https://github.com/assemble/yfm/tree/master/test/fixtures/book)
+* [the compiled result](https://github.com/assemble/yfm/blob/master/test/actual/aggregate.html)
+
+#### options and context
+* [defining helper options](https://github.com/assemble/yfm/blob/master/Gruntfile.js#L31-L35)
+* [config data used in examples](https://github.com/assemble/yfm/blob/master/Gruntfile.js#L19)
+
 
 
 ## Options
