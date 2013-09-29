@@ -1,7 +1,7 @@
 {
   "name": "helper-aggregate",
   "version": "0.1.0",
-  "description": "{{aggregate}} handlebars helper for inlining content from multiple files.",
+  "description": "{{aggregate}} handlebars helper. Inlines content from multiple files optionally using wildcard (globbing/minimatch) patterns, extracts YAML front matter to pass to context for each file. Accepts compare function as 3rd parameter for sorting inlined files.",
   "homepage": "https://github.com/helpers/helper-aggregate",
   "author": {
     "name": "Jon Schlinkert",
@@ -21,9 +21,11 @@
     }
   ],
   "dependencies": {
-    "lodash": "~2.1.0",
+    "assemble-yaml": "~0.1.5",
     "globule": "~0.1.0",
-    "assemble-yaml": "~0.1.5"
+    "lodash": "~2.1.0",
+    "handlebars": "~1.0.12",
+    "grunt": "~0.4.1"
   },
   "keywords": [
     "helper",
