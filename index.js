@@ -19,50 +19,43 @@ var yfm   = require('assemble-yaml');
 var _     = require('lodash');
 
 
-
 module.exports.register = function(Handlebars, options) {
 
   // If the 'assemble.options' object exists, use it
-  var assembleOptions = options || {};
+  var assembleOpts = options.aggregate || {};
 
   Handlebars.registerHelper("aggregate", function (src, options, compare_fn) {
 
     // Default options
-    options = _.extend({}, {
-      fromFile: true,
-      sep: '\n'
-    }, assembleOptions.aggregate, options.hash);
+    options = _.defaults(options.hash, assembleOpts, {sep: '\n'});
 
     var content;
     compare_fn = (compare_fn || options.compare_fn || compareFn);
     var index = 0;
 
     return glob.find(src, options).map(function (path, options) {
+      var context = yfm.extract(path, options).context;
+      var content = yfm.extract(path, options).content;
       index += 1;
       return {
         index: index,
         path: path,
-        context: yfm.extract(path, options).context,
-        content: yfm.extract(path, options).content
+        context: processContext(grunt, context),
+        content: content
       };
     }).sort(compare_fn).map(function (obj) {
-      obj.context = processContext(grunt, obj.context);
       var template = Handlebars.compile(obj.content);
       return new Handlebars.SafeString(template(obj.context));
     }).join(options.sep);
   });
-
 };
 
 /**
  * Process templates using grunt config data and context
  */
 var processContext = function(grunt, context) {
-  var config = _.cloneDeep(grunt.config.data);
-  grunt.config.data = grunt.util._.defaults(context || {}, config);
-  context = grunt.config.process(context);
-  grunt.config.data = _.cloneDeep(config);
-  return context;
+  grunt.config.data = _.defaults(context || {}, _.cloneDeep(grunt.config.data));
+  return grunt.config.process(grunt.config.data);
 };
 
 /**
@@ -73,10 +66,4 @@ var processContext = function(grunt, context) {
  */
 var compareFn = function(a, b) {
   return a.index >= b.index ? 1 : -1;
-}
-
-
-
-
-
-
+};
