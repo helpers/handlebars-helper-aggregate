@@ -1,0 +1,14 @@
+---
+title: <%= book.title %>
+order: 21
+chapters: book/*.hbs
+---
+<h1>{{title}}</h1>
+
+<!-- chapter -->
+{{{aggregate chapters sep="<!-- chapter -->"}}}
+
+<!-- ./test/fixtures/book/ -->
+{{{aggregate 'globbing/*.hbs'}}}
+
+
