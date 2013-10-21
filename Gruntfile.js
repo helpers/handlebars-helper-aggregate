@@ -1,6 +1,6 @@
 /*
  * {{aggregate}}
- * https://github.com/assemble/aggregate
+ * https://github.com/helpers/handlebars-helper-aggregate
  *
  * Copyright (c) 2013 Jon Schlinkert, contributors.
  * Licensed under the MIT license.
@@ -26,15 +26,16 @@ module.exports = function(grunt) {
     assemble: {
       options: {
         flatten: true,
-        layout: 'test/fixtures/default.hbs',    
+        layout: 'test/fixtures/default.hbs',
         data: ['test/fixtures/metadata/book.yml'],
         // Register this helper
-        helpers: ['./index.js', 'helper-prettify'],
+        helpers: ['./index.js'],
         aggregate: {
           cwd: 'test/fixtures',
           sep: '<!-- separator defined in Gruntfile -->'
         }
       },
+
       // No options defined
       no_opts_defined: {
         options: {
@@ -43,10 +44,11 @@ module.exports = function(grunt) {
         src: ['test/fixtures/pages/toc.hbs'],
         dest: 'test/actual/no_opts_defined/'
       },
+
       // Basic compare function
       compare_function_one: {
         src: ['test/fixtures/pages/toc.hbs'],
-        dest: 'test/actual/no_opts_defined/',
+        dest: 'test/actual/compare_function_one/',
         options: {
           aggregate: {
             compare: function (a, b) {
@@ -55,10 +57,11 @@ module.exports = function(grunt) {
           }
         }
       },
+
       // Alternative compare function
       compare_function_two: {
         src: ['test/fixtures/pages/toc.hbs'],
-        dest: 'test/actual/no_opts_defined/',
+        dest: 'test/actual/compare_function_two/',
         options: {
           aggregate: {
             compare: function(a, b) {
